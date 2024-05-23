@@ -2,7 +2,7 @@ const express = require('express');
 
 //Importando as bibliotecas de sessões e cookies
 const session = require('express-session');
-const cookie = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -25,6 +25,8 @@ const produtos = [
     {id: 3, nome: 'Produto 3', preco:20},
 ]
 
+
+
 app.get('/produtos', (req, res) => {
     res.send(`
         <h1>Lista de Produtos</h1>
@@ -41,9 +43,13 @@ app.get('/produtos', (req, res) => {
 //rota para adicionar produtos no carrinho 
 app.get('/adicionar/:id', (req, res) =>{
     const id = parseInt(req.params.id);
+    console.log(id)
     const produto = produtos.find((p) => p.id === id);
 
     if(produto){
+        if(!req.session.carrinho){
+            req.session.carrinho = []
+        }
         req.session.carrinho.push(produto);
     }
     res.redirect('/produtos');
@@ -51,7 +57,7 @@ app.get('/adicionar/:id', (req, res) =>{
 
 //rota para exibir o carrinho de compras
 app.get('/carrinho', (req,res) =>{
-    const carrinho = req.session.carrinho
+    const carrinho = req.session.carrinho || []
     const total = carrinho.reduce((acc, produto) => acc + produto.preco, 0)
 
     res.send(`
@@ -64,4 +70,8 @@ app.get('/carrinho', (req,res) =>{
         <a href="/produtos">Continuar Comprando</a>
         
     `);
+})
+
+app.listen(3000, () =>{
+    console.log('Aplicação Rodando')
 })
